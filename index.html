@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#112b4c" />
+  <meta name="description" content="Panel de control y monitoreo de Casa Inteligente ESP32" />
+  <title>Casa Inteligente · Panel de control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z" />
+            <path d="M9 21v-8h6v8" />
+          </svg></span>
+        <div><strong>DOMO<span>HOME</span></strong><small>CASA INTELIGENTE</small></div>
+      </div>
+      <div class="nav-overline">ESPACIO DE CONTROL</div>
+      <nav class="side-nav"><a href="#inicio" class="nav-link active"><span class="nav-icon">▦</span> Vista
+          general</a><a href="#iluminacion" class="nav-link"><span class="nav-icon">☼</span> Iluminación</a><a
+          href="#monitoreo" class="nav-link"><span class="nav-icon">⌂</span> Techo automático</a></nav>
+      <div class="side-bottom">
+        <div class="side-chip"><span class="pulse-dot"></span>
+          <div><strong>ESP32 + Firebase</strong><small>Panel de monitoreo</small></div>
+        </div>
+        <p>El techo se controla de forma automática mediante el sensor de lluvia.</p><span class="version">VERSIÓN 1.4 ·
+          DOMÓTICA</span>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumbs">Domótica <span>/</span> <strong>Panel principal</strong></div>
+        <div class="top-actions"><span class="date-chip" id="todayDate">CASA INTELIGENTE</span>
+          <div class="account" id="account" hidden><span class="avatar" aria-hidden="true">A</span><span
+              class="account-email" id="accountEmail"></span><button class="logout-btn" id="logoutBtn"
+              type="button">Cerrar sesión</button></div>
+        </div>
+      </header>
+      <main class="main-content">
+        <section id="loginView" class="login-layout">
+          <div class="login-visual"><span class="visual-tag">SISTEMA DOMÓTICO ESP32</span>
+            <div class="visual-house"><svg viewBox="0 0 400 270" aria-hidden="true">
+                <defs>
+                  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#f8fbff" />
+                    <stop offset="1" stop-color="#cbdeef" />
+                  </linearGradient>
+                </defs>
+                <circle cx="310" cy="45" r="25" fill="#ffd58a" />
+                <path d="M64 126 200 33l136 93" fill="none" stroke="#9dd8ea" stroke-width="24" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M80 126 200 47l120 79v112H80Z" fill="url(#wall)" />
+                <rect x="169" y="155" width="62" height="83" rx="5" fill="#172c51" />
+                <rect x="103" y="151" width="47" height="44" rx="5" fill="#4ebacc" />
+                <rect x="250" y="151" width="47" height="44" rx="5" fill="#4ebacc" />
+                <path d="M126 151v44m147-44v44" stroke="#f8fbff" stroke-width="3" />
+                <circle cx="217" cy="198" r="3" fill="#f3c179" />
+                <rect x="63" y="238" width="274" height="8" rx="4" fill="#92c9d9" />
+              </svg></div>
+            <h1>Tu hogar, conectado.<br><span>Todo bajo control.</span></h1>
+            <p>Controla las luces y consulta el estado del techo automático desde cualquier pantalla.</p>
+            <div class="visual-tags"><span>4 habitaciones</span><span>Sensor de lluvia</span><span>Monitoreo de
+                techo</span></div>
+          </div>
+          <form id="loginForm" class="login-card">
+            <div class="eyebrow">ACCESO SEGURO</div>
+            <h2>Bienvenido de nuevo</h2>
+            <p class="subtle">Ingresa con tu cuenta administradora de Firebase para acceder al panel.</p><label
+              for="email">Correo electrónico</label><input id="email" name="email" type="email" required
+              autocomplete="username" placeholder="correo@ejemplo.com" /><label for="password">Contraseña</label><input
+              id="password" name="password" type="password" required autocomplete="current-password"
+              placeholder="Introduce tu contraseña" /><button id="loginBtn" type="submit"
+              class="btn btn-primary full">Iniciar sesión <span aria-hidden="true">→</span></button>
+            <p id="loginError" class="message error" role="alert" hidden></p>
+            <div class="login-note">◈ Acceso protegido mediante Firebase Authentication</div>
+          </form>
+        </section>
+        <section id="dashboardView" hidden>
+          <div class="page-heading" id="inicio">
+            <div><span class="eyebrow">CENTRO DE CONTROL</span>
+              <h1>Bienvenido a casa <span class="greeting-icon">✳</span></h1>
+              <p>Controla tus habitaciones y consulta el estado del techo automático.</p>
+            </div>
+            <div class="connection-card" role="status" aria-live="polite"><span id="connectionDot"
+                class="connection-dot"></span>
+              <div><strong id="connectionLabel">Conectando a Firebase…</strong><small id="connectionDetail">Esperando
+                  datos de Realtime Database</small></div>
+            </div>
+          </div>
+          <div id="dashboardError" class="message error" role="alert" hidden></div>
+          <section class="section-block" id="iluminacion">
+            <div class="section-head">
+              <div><span class="section-marker">01</span>
+                <div>
+                  <h2>Control de iluminación</h2>
+                  <p>Enciende y apaga las luces de cada habitación.</p>
+                </div>
+              </div><span class="small-note"><span class="small-dot"></span> Estados reportados por el ESP32</span>
+            </div>
+            <div id="ledGrid" class="led-grid">
+              <article class="led-card room-1" data-led="led1">
+                <div class="led-top"><span class="bulb" aria-hidden="true">☀</span><span class="state-pill"
+                    data-state>Sin datos</span></div>
+                <div class="room-number">
+                  <div class="room-illustration" aria-hidden="false"><svg viewBox="0 0 240 132" role="img"
+                      aria-label="Ilustración de sala con sofá">
+                      <ellipse cx="120" cy="119" rx="105" ry="7" fill="#cbdcf7" opacity=".65" />
+                      <rect x="22" y="25" width="50" height="54" rx="7" fill="#e6efff" stroke="#97b8ec"
+                        stroke-width="2" />
+                      <path d="M47 25v54M22 52h50" stroke="#97b8ec" stroke-width="2" />
+                      <circle cx="193" cy="30" r="14" fill="#ffcf70" />
+                      <path d="M193 44v47" stroke="#4674b0" stroke-width="4" />
+                      <path d="M173 93h40" stroke="#4674b0" stroke-width="4" stroke-linecap="round" />
+                      <rect x="55" y="62" width="137" height="43" rx="14" fill="#4488db" />
+                      <rect x="69" y="48" width="109" height="34" rx="14" fill="#6aabf2" />
+                      <rect x="45" y="74" width="24" height="36" rx="9" fill="#3674c7" />
+                      <rect x="178" y="74" width="24" height="36" rx="9" fill="#3674c7" />
+                      <path d="M65 108v10m119-10v10" stroke="#315986" stroke-width="6" stroke-linecap="round" />
+                      <rect x="111" y="74" width="31" height="16" rx="7" fill="#b9dcff" />
+                    </svg></div>HABITACIÓN 01
+                </div>
+                <h3>Sala principal</h3>
+                <p class="led-detail" data-detail>Esperando lectura…</p>
+                <div class="card-separator"></div><button class="btn btn-control" type="button" data-toggle
+                  disabled>Esperando datos</button>
+              </article>
+              <article class="led-card room-2" data-led="led2">
+                <div class="led-top"><span class="bulb" aria-hidden="true">☀</span><span class="state-pill"
+                    data-state>Sin datos</span></div>
+                <div class="room-number">
+                  <div class="room-illustration" aria-hidden="false"><svg viewBox="0 0 240 132" role="img"
+                      aria-label="Ilustración de dormitorio con cama">
+                      <ellipse cx="120" cy="119" rx="105" ry="7" fill="#c3eadb" />
+                      <rect x="38" y="22" width="164" height="90" rx="7" fill="#dbf8ee" />
+                      <path d="M55 43h130" stroke="#a6dec9" stroke-width="3" />
+                      <rect x="44" y="72" width="156" height="39" rx="9" fill="#168b72" />
+                      <rect x="55" y="62" width="134" height="34" rx="12" fill="#56cba7" />
+                      <rect x="59" y="56" width="50" height="20" rx="9" fill="#f6fff9" />
+                      <rect x="116" y="56" width="50" height="20" rx="9" fill="#f6fff9" />
+                      <path d="M44 111v10m156-10v10" stroke="#297862" stroke-width="6" />
+                      <rect x="23" y="74" width="18" height="34" rx="3" fill="#75c6a5" />
+                      <path d="M32 74V49" stroke="#408d74" stroke-width="4" />
+                      <path d="M16 49h32l-6-18H22Z" fill="#f4c777" />
+                      <circle cx="194" cy="37" r="9" fill="#ffcf82" />
+                    </svg></div>HABITACIÓN 02
+                </div>
+                <h3>Dormitorio 1</h3>
+                <p class="led-detail" data-detail>Esperando lectura…</p>
+                <div class="card-separator"></div><button class="btn btn-control" type="button" data-toggle
+                  disabled>Esperando datos</button>
+              </article>
+              <article class="led-card room-3" data-led="led3">
+                <div class="led-top"><span class="bulb" aria-hidden="true">☀</span><span class="state-pill"
+                    data-state>Sin datos</span></div>
+                <div class="room-number">
+                  <div class="room-illustration" aria-hidden="false"><svg viewBox="0 0 240 132" role="img"
+                      aria-label="Ilustración de cocina con estufa">
+                      <ellipse cx="120" cy="119" rx="105" ry="7" fill="#f3d7b9" />
+                      <rect x="27" y="26" width="56" height="42" rx="6" fill="#ffe9cb" stroke="#e8aa73"
+                        stroke-width="2" />
+                      <rect x="157" y="26" width="56" height="42" rx="6" fill="#ffe9cb" stroke="#e8aa73"
+                        stroke-width="2" />
+                      <path d="M55 26v42m130-42v42" stroke="#e8aa73" stroke-width="2" />
+                      <rect x="38" y="78" width="164" height="39" rx="5" fill="#eea254" />
+                      <rect x="44" y="71" width="152" height="11" rx="4" fill="#fff7e9" />
+                      <rect x="85" y="65" width="65" height="10" rx="5" fill="#d27b39" />
+                      <path d="M95 64h42l-4-17h-34Z" fill="#547b95" />
+                      <path d="M106 43q-6-10 0-17m13 17q-6-10 0-17" stroke="#df9e57" fill="none" stroke-width="3"
+                        stroke-linecap="round" />
+                      <circle cx="56" cy="93" r="4" fill="#fff2dc" />
+                      <circle cx="73" cy="93" r="4" fill="#fff2dc" />
+                      <rect x="164" y="91" width="27" height="16" rx="2" fill="#fbe1b8" />
+                      <path d="M38 117h164" stroke="#b16d37" stroke-width="3" />
+                    </svg></div>HABITACIÓN 03
+                </div>
+                <h3>Dormitorio 2</h3>
+                <p class="led-detail" data-detail>Esperando lectura…</p>
+                <div class="card-separator"></div><button class="btn btn-control" type="button" data-toggle
+                  disabled>Esperando datos</button>
+              </article>
+              <article class="led-card room-4" data-led="led4">
+                <div class="led-top"><span class="bulb" aria-hidden="true">☀</span><span class="state-pill"
+                    data-state>Sin datos</span></div>
+                <div class="room-number">
+                  <div class="room-illustration" aria-hidden="false"><svg viewBox="0 0 240 132" role="img"
+                      aria-label="Ilustración de patio con plantas">
+                      <ellipse cx="120" cy="120" rx="106" ry="7" fill="#dfcff8" />
+                      <path d="M32 115V26M208 115V26" stroke="#a88ad9" stroke-width="5" />
+                      <path d="M28 28h185" stroke="#8b66c8" stroke-width="6" stroke-linecap="round" />
+                      <path d="M35 31l17 12 17-12 17 12 17-12 17 12 17-12 17 12 17-12 17 12" fill="none"
+                        stroke="#ddb6ff" stroke-width="5" />
+                      <rect x="70" y="80" width="104" height="14" rx="6" fill="#9569cd" />
+                      <path d="M83 92v27m78-27v27" stroke="#7651b4" stroke-width="7" stroke-linecap="round" />
+                      <rect x="90" y="52" width="65" height="28" rx="10" fill="#bc9fe6" />
+                      <path d="M45 107V70m0 2q-30-25-21-35 25 4 21 35m0-11q21-30 31-19 3 23-31 19" fill="#54b997"
+                        stroke="#338e73" stroke-width="2" />
+                      <path d="M196 107V64m0 0q-24-31-33-20-3 22 33 20m0-11q22-29 31-17 3 21-31 17" fill="#66c7a4"
+                        stroke="#338e73" stroke-width="2" />
+                      <path d="M29 98h32l-5 20H35Zm151 0h32l-5 20h-22Z" fill="#bb89db" />
+                    </svg></div>HABITACIÓN 04
+                </div>
+                <h3>Patio</h3>
+                <p class="led-detail" data-detail>Esperando lectura…</p>
+                <div class="card-separator"></div><button class="btn btn-control" type="button" data-toggle
+                  disabled>Esperando datos</button>
+              </article>
+            </div>
+          </section>
+          <section class="section-block" id="monitoreo">
+            <div class="section-head">
+              <div><span class="section-marker">02</span>
+                <div>
+                  <h2>Monitoreo automático</h2>
+                  <p>Consulta las condiciones del clima y el estado del techo.</p>
+                </div>
+              </div><span class="small-note">Solo visualización · Sin control manual</span>
+            </div>
+            <div class="monitor-grid">
+              <article class="monitor-card">
+                <div class="monitor-top"><span class="monitor-icon rain">☂</span><span class="monitor-tag">SENSOR
+                    YL-83</span></div>
+                <div class="monitor-illustration"><svg viewBox="0 0 290 170" role="img"
+                    aria-label="Nube y sensor de lluvia">
+                    <circle cx="215" cy="39" r="29" fill="#d6edff" />
+                    <path d="M81 101c-25 0-27-35-6-41 4-30 45-38 59-14 21-18 52-3 49 20 26-2 42 31 14 35Z"
+                      fill="#77bafa" />
+                    <path d="M81 101c-25 0-27-35-6-41 4-30 45-38 59-14 21-18 52-3 49 20 26-2 42 31 14 35Z" fill="none"
+                      stroke="#418dda" stroke-width="3" />
+                    <g class="rain-drops" stroke="#2287d4" stroke-width="6" stroke-linecap="round">
+                      <path d="m90 120-7 15m36-15-7 15m36-15-7 15m36-15-7 15" />
+                    </g>
+                    <path d="M48 148h180" stroke="#94cbea" stroke-width="5" stroke-linecap="round" />
+                    <rect x="211" y="112" width="34" height="29" rx="5" fill="#e4f2ff" stroke="#6eaed5"
+                      stroke-width="3" />
+                    <path d="m219 121 18 12m-18 0 18-12" stroke="#6eaed5" stroke-width="2" />
+                  </svg></div>
+                <div class="monitor-information">
+                  <h3>Condición de lluvia</h3><strong id="rainStatus" class="monitor-value">Sin datos</strong>
+                  <p>Información recibida desde el sensor del ESP32.</p>
+                </div>
+                <div class="monitor-bottom">◉ &nbsp; Detección automática de lluvia</div>
+              </article>
+              <article class="monitor-card">
+                <div class="monitor-top"><span class="monitor-icon roof">⌂</span><span class="monitor-tag">TECHO
+                    RETRÁCTIL</span></div>
+                <div class="monitor-illustration"><svg viewBox="0 0 290 170" role="img"
+                    aria-label="Casa con techo retráctil">
+                    <ellipse cx="143" cy="153" rx="118" ry="7" fill="#bfe8de" />
+                    <rect x="66" y="65" width="156" height="84" rx="7" fill="#d6f5ef" />
+                    <path d="M49 72 145 22l96 50" fill="none" stroke="#269c8d" stroke-width="12" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M62 72 145 31l83 41" fill="none" stroke="#88dacf" stroke-width="7"
+                      stroke-linecap="round" />
+                    <rect x="125" y="98" width="41" height="51" rx="4" fill="#317b85" />
+                    <rect x="80" y="88" width="34" height="31" rx="4" fill="#8dd4ce" />
+                    <rect x="178" y="88" width="34" height="31" rx="4" fill="#8dd4ce" />
+                    <circle cx="156" cy="125" r="3" fill="#f4bd66" />
+                    <path class="roof-motion" d="m33 42 36-19m-30 5-6 14 15 3" fill="none" stroke="#4ba8a8"
+                      stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg></div>
+                <div class="monitor-information">
+                  <h3>Posición del techo</h3><strong id="roofStatus" class="monitor-value">Sin datos</strong>
+                  <p>El techo abre y cierra según el sensor de lluvia.</p>
+                </div>
+                <div class="monitor-bottom">◈ &nbsp; Funcionamiento exclusivamente automático</div>
+              </article>
+            </div>
+          </section>
+          <section class="closing-banner" aria-label="Información del sistema">
+            <div class="hero-banner">
+              <div><span class="hero-eyebrow">TU CASA INTELIGENTE</span>
+                <h2>Control inteligente.<br><span>Tranquilidad en cada espacio.</span></h2>
+                <p>Un entorno conectado con control de iluminación y techo retráctil automático.</p>
+                <div class="hero-footer"><span class="hero-mini-dot"></span> Sistema basado en ESP32 y Firebase</div>
+              </div>
+              <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 330 220">
+                  <circle cx="252" cy="56" r="38" fill="#3d5982" opacity=".45" />
+                  <path d="m49 102 113-76 113 76" fill="none" stroke="#92e1e1" stroke-width="18" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="m69 102 93-62 93 62v100H69Z" fill="#e6f5f5" />
+                  <rect x="135" y="135" width="53" height="67" rx="4" fill="#244b6b" />
+                  <rect x="87" y="118" width="33" height="39" rx="3" fill="#79caca" />
+                  <rect x="203" y="118" width="33" height="39" rx="3" fill="#79caca" />
+                  <circle cx="176" cy="169" r="3" fill="#f4be65" />
+                  <path d="M46 203h233" stroke="#a1e1d8" stroke-width="6" stroke-linecap="round" />
+                </svg></div>
+            </div>
+          </section>
+          <footer class="footer">
+            <div><strong>DOMOHOME · Casa Inteligente</strong>
+              <p>Última recepción en el navegador: <span id="lastData">—</span></p>
+              <p>Recibir datos de Firebase no confirma que el ESP32 esté conectado en este momento.</p>
+            </div><span class="footer-tag">ESP32 · FIREBASE</span>
+          </footer>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+
+</html>
